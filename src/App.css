@@ -75,3 +75,16 @@ button:hover {
   border: none;
   cursor: pointer;
 }
+input[type="text"] {
+  padding: 4px;
+  margin-right: 5px;
+}
+
+button {
+  margin-left: 5px;
+}
+
+.completed span {
+  text-decoration: line-through;
+  color: gray;
+}
