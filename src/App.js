@@ -49,6 +49,68 @@
 // }
 
 // export default App;
+//=====================21/01/2025================================
+// import React, { useEffect, useState } from 'react';
+// import axios from 'axios';
+// import './App.css';
+
+// function App() {
+//   const [task, setTask] = useState("");
+//   const [tasks, setTasks] = useState([]);
+
+//   const loadTasks = async () => {
+//     const res = await axios.get('http://localhost:3001/tasks');
+//     setTasks(res.data);
+//   };
+
+//   useEffect(() => {
+//     loadTasks();
+//   }, []);
+
+//   const handleAdd = async () => {
+//     if (task.trim() === "") return;
+//     const res = await axios.post('http://localhost:3001/tasks', { text: task });
+//     setTasks([...tasks, res.data]); 
+//     setTask("");
+//   };
+
+//   const toggleComplete = async (id, completed) => {
+//     await axios.put(`http://localhost:3001/tasks/${id}`, { completed: !completed });
+//     loadTasks();
+//   };
+
+//   const deleteTask = async (id) => {
+//     await axios.delete(`http://localhost:3001/tasks/${id}`);
+//     loadTasks();
+//   };
+
+//   return (
+//     <div className="app">
+//       <h1>React To-Do App</h1>
+//       <div className="input-container">
+//         <input
+//           type="text"
+//           placeholder="Add a new task..."
+//           value={task}
+//           onChange={(e) => setTask(e.target.value)}
+//         />
+//         <button onClick={handleAdd}>Add</button>
+//       </div>
+
+//       <ul className="task-list">
+//         {tasks.map((t) => (
+//           <li key={t.id} className={t.completed ? "completed" : ""}>
+//             <span onClick={() => toggleComplete(t.id, t.completed)}>{t.text}</span>
+//             <button onClick={() => deleteTask(t.id)}>X</button>
+//           </li>
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// }
+
+// export default App;
+//=====================21/01/2025================================
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -57,6 +119,8 @@ import './App.css';
 function App() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editText, setEditText] = useState("");
 
   const loadTasks = async () => {
     const res = await axios.get('http://localhost:3001/tasks');
@@ -70,7 +134,7 @@ function App() {
   const handleAdd = async () => {
     if (task.trim() === "") return;
     const res = await axios.post('http://localhost:3001/tasks', { text: task });
-    setTasks([...tasks, res.data]);
+    setTasks([...tasks, res.data]); 
     setTask("");
   };
 
@@ -81,6 +145,24 @@ function App() {
 
   const deleteTask = async (id) => {
     await axios.delete(`http://localhost:3001/tasks/${id}`);
+    loadTasks();
+  };
+
+  const startEditing = (task) => {
+    setEditId(task.id);
+    setEditText(task.text);
+  };
+
+  const cancelEdit = () => {
+    setEditId(null);
+    setEditText("");
+  };
+
+  const saveEdit = async (id) => {
+    if (editText.trim() === "") return;
+    await axios.put(`http://localhost:3001/tasks/${id}`, { text: editText });
+    setEditId(null);
+    setEditText("");
     loadTasks();
   };
 
@@ -100,8 +182,23 @@ function App() {
       <ul className="task-list">
         {tasks.map((t) => (
           <li key={t.id} className={t.completed ? "completed" : ""}>
-            <span onClick={() => toggleComplete(t.id, t.completed)}>{t.text}</span>
-            <button onClick={() => deleteTask(t.id)}>X</button>
+            {editId === t.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                />
+                <button onClick={() => saveEdit(t.id)}>Save</button>
+                <button onClick={cancelEdit}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span onClick={() => toggleComplete(t.id, t.completed)}>{t.text}</span>
+                <button onClick={() => startEditing(t)}>Edit</button>
+                <button onClick={() => deleteTask(t.id)}>X</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
